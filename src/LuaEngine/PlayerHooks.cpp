@@ -706,3 +706,27 @@ void Eluna::OnCreatureKilledByPet(Player* player, Creature* killed)
     Push(killed);
     CallAllFunctions(PlayerEventBindings, key);
 }
+void Eluna::OnSetMinion(Player* player, Minion* minion, bool apply)
+void Eluna::OnCreatureKilledByPet(Player* player, Creature* killed)
+{
+    {
+        START_HOOK(PLAYER_EVENT_ON_SET_MINION);
+        START_HOOK(PLAYER_EVENT_ON_PET_KILL);
+        Push(player);
+        Push(player);
+        Push(minion);
+        Push(apply);
+        Push(killed);
+        CallAllFunctions(PlayerEventBindings, key);
+        CallAllFunctions(PlayerEventBindings, key);
+    }
+}
+void Eluna::OnAfterApplyItemMods(Player* player, Item* item, uint8 slot, bool apply)
+{
+    START_HOOK(PLAYER_EVENT_ON_AFTER_APPLY_ITME_MODS);
+    Push(player);
+    Push(item);
+    Push(slot);
+    Push(apply);
+    CallAllFunctions(PlayerEventBindings, key);
+}

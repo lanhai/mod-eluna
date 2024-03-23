@@ -15,6 +15,19 @@
 namespace LuaPlayer
 {
 #if (!defined(TBC) && !defined(CLASSIC))
+    int StoreTempItem(lua_State* L, Player* player)
+    {
+        uint32 itemId = Eluna::CHECKVAL<uint32>(L, 2);
+        Item* item = Item::CreateItem(itemId, 1, player, false, 0);
+        Eluna::Push(L, item);
+        return 1;
+    }
+    int ResetAllItemMods(lua_State* L, Player* player)
+    {
+        player->_RemoveAllItemMods();
+        player->_ApplyAllItemMods();
+        return 1;
+    }
     /**
      * Returns `true` if the [Player] can Titan Grip, `false` otherwise.
      *
@@ -3456,7 +3469,32 @@ namespace LuaPlayer
         player->AutoUnequipOffhandIfNeed();
         return 1;
     }
-    
+    //脱下装备
+    int UnEquipItem(lua_State* L, Player* player)
+    {
+        uint8 slot = Eluna::CHECKVAL<uint8>(L, 2);
+        Item* offItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, slot);
+        ItemPosCountVec off_dest;
+        uint8 off_msg = player->CanStoreItem(NULL_BAG, NULL_SLOT, off_dest, offItem, false);
+        if (off_msg == EQUIP_ERR_OK)
+        {
+            player->RemoveItem(INVENTORY_SLOT_BAG_0, slot, true);
+            player->StoreItem(off_dest, offItem, true);
+        }
+        else
+        {
+            player->MoveItemFromInventory(INVENTORY_SLOT_BAG_0, slot, true);
+            CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
+            offItem->DeleteFromInventoryDB(trans);
+            offItem->SaveToDB(trans);
+            std::string subject = player->GetSession()->GetAcoreString(LANG_NOT_EQUIPPED_ITEM);
+            MailDraft(subject, "There were problems with equipping one or several items").AddItem(offItem).SendMailTo(trans, player, MailSender(player, MAIL_STATIONERY_GM), MAIL_CHECK_MASK_COPIED);
+
+            CharacterDatabase.CommitTransaction(trans);
+        }
+        player->UpdateTitansGrip();
+        return 1;
+    }
     /**
      * Returns true if the player can equip the given [Item] or item entry to the given slot, false otherwise.
      *
@@ -3664,7 +3702,15 @@ namespace LuaPlayer
 #endif
         return 1;
     }
-    
+    int ApplyEnchantment(lua_State* L, Player* player)
+    {
+        Item* item = Eluna::CHECKOBJ<Item>(L, 2, false);
+        uint8 slot = Eluna::CHECKVAL<uint8>(L, 3, false);
+        bool apply = Eluna::CHECKVAL<bool>(L, 4, true);
+        player->ApplyEnchantment(item, EnchantmentSlot(slot), apply);
+        Eluna::Push(L, item);
+        return 1;
+    }
     /**
      * Removes the given amount of the specified [Item] from the player.
      *
@@ -3725,7 +3771,20 @@ namespace LuaPlayer
 #endif
         return 0;
     }
-
+    int ModifySpellCooldown(lua_State* L, Player* player)
+    {
+        uint32 spellId = Eluna::CHECKVAL<uint32>(L, 2);
+        int32 cooldown = Eluna::CHECKVAL<int32>(L, 3);
+        player->ModifySpellCooldown(spellId, cooldown);
+        return 0;
+    }
+    int ModifySpellActivationTime(lua_State* L, Player* player)
+    {
+        uint32 spellId = Eluna::CHECKVAL<uint32>(L, 2);
+        uint32 time = Eluna::CHECKVAL<uint32>(L, 3);
+        player->ApplySpellMod(spellId, SPELLMOD_ACTIVATION_TIME, time);
+        return 0;
+    }
     /**
      * Resets cooldown of the specified category
      *

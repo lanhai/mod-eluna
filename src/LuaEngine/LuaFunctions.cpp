@@ -615,6 +615,7 @@ ElunaRegister<Player> PlayerMethods[] =
     { "HasItem", &LuaPlayer::HasItem },
     { "Teleport", &LuaPlayer::Teleport },
     { "AddItem", &LuaPlayer::AddItem },
+    { "ApplyEnchantment", &LuaPlayer::ApplyEnchantment },
 #ifndef CLASSIC
     { "IsInArenaTeam", &LuaPlayer::IsInArenaTeam },
 #endif
@@ -709,7 +710,10 @@ ElunaRegister<Player> PlayerMethods[] =
     { "RemoveLifetimeKills", &LuaPlayer::RemoveLifetimeKills },
     { "ResurrectPlayer", &LuaPlayer::ResurrectPlayer },
     { "EquipItem", &LuaPlayer::EquipItem },
+    { "UnEquipItem", &LuaPlayer::UnEquipItem },
     { "ResetSpellCooldown", &LuaPlayer::ResetSpellCooldown },
+    { "ModifySpellCooldown", &LuaPlayer::ModifySpellCooldown },
+    { "ModifySpellActivationTime", &LuaPlayer::ModifySpellActivationTime },
     { "ResetTypeCooldowns", &LuaPlayer::ResetTypeCooldowns },
     { "ResetAllCooldowns", &LuaPlayer::ResetAllCooldowns },
     { "GiveXP", &LuaPlayer::GiveXP },                                                       // :GiveXP(xp[, victim, pureXP, triggerHook]) - UNDOCUMENTED - Gives XP to the player. If pure is false, bonuses are count in. If triggerHook is false, GiveXp hook is not triggered.
@@ -797,7 +801,9 @@ ElunaRegister<Player> PlayerMethods[] =
     { "ClearHonorInfo", &LuaPlayer::ClearHonorInfo },
 #endif
     { "UpdatePlayerSetting", &LuaPlayer::UpdatePlayerSetting },
-
+    //新增方法
+    { "ResetAllItemMods", &LuaPlayer::ResetAllItemMods },
+    { "StoreTempItem", &LuaPlayer::StoreTempItem },
     { NULL, NULL }
 };
 
@@ -1025,7 +1031,9 @@ ElunaRegister<Item> ItemMethods[] =
     { "IsConjuredConsumable", &LuaItem::IsConjuredConsumable },
     //{"IsRefundExpired", &LuaItem::IsRefundExpired},               // :IsRefundExpired() - UNDOCUMENTED - Returns true if the item's refund time has expired
     { "SetEnchantment", &LuaItem::SetEnchantment },
+    { "SetItemRandomProperties", &LuaItem::SetItemRandomProperties },
     { "ClearEnchantment", &LuaItem::ClearEnchantment },
+    { "ApplyItemMods", &LuaItem::ApplyItemMods },
 
     // Other
     { "SaveToDB", &LuaItem::SaveToDB },

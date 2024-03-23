@@ -315,8 +315,8 @@ namespace LuaItem
 #endif
                 if (strcmp(suffixName, "") != 0)
                 {
-                    name += ' ';
-                    name += suffixName;
+                    //name += ' ';
+                    //name += suffixName;
                 }
             }
         }
@@ -415,7 +415,8 @@ namespace LuaItem
     {
         uint32 enchant_slot = Eluna::CHECKVAL<uint32>(L, 2);
 
-        if (enchant_slot >= MAX_INSPECTED_ENCHANTMENT_SLOT)
+        //if (enchant_slot >= MAX_INSPECTED_ENCHANTMENT_SLOT)
+        if (enchant_slot >= 12)
             return luaL_argerror(L, 2, "valid EnchantmentSlot expected");
 
         Eluna::Push(L, item->GetEnchantmentId(EnchantmentSlot(enchant_slot)));
@@ -480,13 +481,24 @@ namespace LuaItem
      * Returns the name of the [Item]
      *
      * @return string name
-     */
-    int GetName(lua_State* L, Item* item)
+     *     int GetName(lua_State* L, Item* item)
     {
         Eluna::Push(L, item->GetTemplate()->Name1);
         return 1;
     }
+     */
 
+    int GetName(lua_State* L, Item* item)
+    {
+        std::string name = item->GetTemplate()->Name1;
+        if (ItemLocale const* il = sObjectMgr->GetItemLocale(item->GetEntry()))
+        {
+            ObjectMgr::GetLocaleString(il->Name, static_cast<LocaleConstant>(LOCALE_zhCN), name);
+        }
+        //Eluna::Push(L, item->GetTemplate()->Name1);
+        Eluna::Push(L, name);
+        return 1;
+    }
     /**
      * Returns the display ID of the [Item]
      *
@@ -725,9 +737,14 @@ namespace LuaItem
             Eluna::Push(L, false);
             return 1;
         }
-
+        // 更改随机附魔title
+        uint32 randomPropertyId = Eluna::CHECKVAL<uint32>(L, 4, 0);
+        if (randomPropertyId > 0)
+        {
+            item->SetItemRandomProperties(randomPropertyId);
+        }
         EnchantmentSlot slot = (EnchantmentSlot)Eluna::CHECKVAL<uint32>(L, 3);
-        if (slot >= MAX_INSPECTED_ENCHANTMENT_SLOT)
+        if (slot >= 12)
             return luaL_argerror(L, 2, "valid EnchantmentSlot expected");
 
         owner->ApplyEnchantment(item, slot, false);
@@ -736,7 +753,30 @@ namespace LuaItem
         Eluna::Push(L, true);
         return 1;
     }
-
+    int ApplyItemMods(lua_State* L, Item* item)
+    {
+        uint8 slot = Eluna::CHECKVAL<uint8>(L, 2);
+        bool apply = Eluna::CHECKVAL<bool>(L, 3);
+        Player* owner = item->GetOwner();
+        owner->_ApplyItemMods(item, slot, apply);
+        return 1;
+    }
+    int SetItemRandomProperties(lua_State* L, Item* item)
+    {
+        Player* owner = item->GetOwner();
+        if (!owner)
+        {
+            Eluna::Push(L, false);
+            return 1;
+        }
+        // 更改随机附魔title
+        uint32 randomPropertyId = Eluna::CHECKVAL<uint32>(L, 2, 0);
+        if (randomPropertyId == 0)
+            return luaL_argerror(L, 2, "错误的随机属性ID");
+        item->SetItemRandomProperties(randomPropertyId);
+        Eluna::Push(L, true);
+        return 1;
+    }
     /* OTHER */
     /**
      * Removes an enchant from the [Item] by the specified slot
@@ -754,7 +794,7 @@ namespace LuaItem
         }
 
         EnchantmentSlot slot = (EnchantmentSlot)Eluna::CHECKVAL<uint32>(L, 2);
-        if (slot >= MAX_INSPECTED_ENCHANTMENT_SLOT)
+        if (slot >= 12)
             return luaL_argerror(L, 2, "valid EnchantmentSlot expected");
 
         if (!item->GetEnchantmentId(slot))

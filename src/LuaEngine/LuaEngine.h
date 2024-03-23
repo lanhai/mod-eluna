@@ -377,7 +377,8 @@ public:
     void OnCreateItem(Player* player, Item* item, uint32 count);
     void OnStoreNewItem(Player* player, Item* item, uint32 count);
     void OnPlayerCompleteQuest(Player* player, Quest const* quest);
-
+    void OnSetMinion(Player* player, Minion* minion, bool apply);
+    void OnAfterApplyItemMods(Player* player, Item* item, uint8 slot, bool apply);
     /* Item */
     void OnDummyEffect(WorldObject* pCaster, uint32 spellId, SpellEffIndex effIndex, Item* pTarget);
     bool OnQuestAccept(Player* pPlayer, Item* pItem, Quest const* pQuest);

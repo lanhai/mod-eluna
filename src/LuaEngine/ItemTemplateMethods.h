@@ -48,13 +48,24 @@ namespace LuaItemTemplate
      * Returns the [ItemTemplate]'s name.
      *
      * @return string name
-     */
-    int GetName(lua_State* L, ItemTemplate* itemTemplate)
+     *     int GetName(lua_State* L, ItemTemplate* itemTemplate)
     {
         Eluna::Push(L, itemTemplate->Name1);
         return 1;
     }
+     */
 
+    int GetName(lua_State* L, ItemTemplate* itemTemplate)
+    {
+        std::string name = itemTemplate->Name1;
+        if (ItemLocale const* il = sObjectMgr->GetItemLocale(itemTemplate->ItemId))
+        {
+            ObjectMgr::GetLocaleString(il->Name, static_cast<LocaleConstant>(LOCALE_zhCN), name);
+        }
+        Eluna::Push(L, name);
+        //Eluna::Push(L, itemTemplate->Name1);
+        return 1;
+    }
     /**
      * Returns the [ItemTemplate]'s display ID.
      *

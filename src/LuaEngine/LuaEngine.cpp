@@ -134,9 +134,9 @@ void Eluna::_ReloadEluna()
     ASSERT(IsInitialized());
 
     if (eConfigMgr->GetOption<bool>("Eluna.PlayerAnnounceReload", false))
-        eWorld->SendServerMessage(SERVER_MSG_STRING, "Reloading Eluna...");
+        eWorld->SendServerMessage(SERVER_MSG_STRING, "服务器正在热重载...");
     else
-        eWorld->SendGMText(SERVER_MSG_STRING, "Reloading Eluna...");
+        eWorld->SendGMText(SERVER_MSG_STRING, "服务器正在热重载...");
 
     // Remove all timed events
     sEluna->eventMgr->SetStates(LUAEVENT_STATE_ERASE);
