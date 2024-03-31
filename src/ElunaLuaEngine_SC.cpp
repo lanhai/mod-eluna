@@ -811,6 +811,16 @@ public:
     {
         sEluna->OnCreatureKilledByPet(player, killed);
     }
+
+    void OnSetMinion(Player* player, Minion* minion, bool apply) override
+    {
+        sEluna->OnSetMinion(player, minion, apply);
+    }
+
+    void OnAfterApplyItemMods(Player* player, Item* item, uint8 slot, bool apply) override
+    {
+        sEluna->OnAfterApplyItemMods(player, item, slot, apply);
+    }
 };
 
 class Eluna_ServerScript : public ServerScript
